@@ -58,9 +58,23 @@ curl -X POST http://127.0.0.1:8000/parse \
 PYTHONPATH=src python -m unittest discover -s tests
 ```
 
-## الخطوة القادمة (AI فعلي)
-لبناء نسخة أقوى:
-1. إضافة OCR (مثل Tesseract أو Azure Document Intelligence) للفواتير المصورة/PDF.
-2. إضافة LLM Extraction schema-based (مثلاً عبر OpenAI JSON schema).
-3. إضافة PostgreSQL + تتبع حالة المعالجة.
-4. إضافة لوحة تحكم للمراجعة البشرية (Human-in-the-loop).
+## خارطة الطريق (الجزء القادم)
+### المرحلة 1: إدخال المستندات (OCR + PDF)
+- دعم رفع PDF/صور عبر endpoint جديد.
+- استخراج النص تلقائياً ثم تمريره للمحلّل الحالي.
+- حفظ النص الخام مع نتيجة التحليل للمراجعة.
+
+### المرحلة 2: ذكاء أعلى في الاستخراج (LLM + Schema)
+- إرسال النص إلى LLM مع JSON Schema ثابت.
+- تطبيق طبقة Validation قبل حفظ النتائج.
+- دمج fallback: إذا فشل LLM يتم الرجوع للمحلّل regex الحالي.
+
+### المرحلة 3: الإنتاج (Production)
+- إضافة PostgreSQL + تتبع الحالات (Queued / Processed / Failed).
+- إضافة Authentication + API keys.
+- إضافة لوحة مراجعة بشرية للحقول منخفضة الثقة.
+
+### مخرجات متوقعة بعد هذه المراحل
+- دعم حقيقي لفواتير متنوعة (صور + PDF + نص).
+- دقة أعلى في الاستخراج مع قابلية التوسع.
+- نظام جاهز للربط مع ERP أو أنظمة محاسبية.
