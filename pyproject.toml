@@ -4,12 +4,15 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "invoice-ai"
-version = "0.1.0"
+version = "0.2.0"
 description = "Starter Invoice AI parser project"
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [{ name = "Codex" }]
-dependencies = []
+dependencies = [
+  "fastapi>=0.111.0",
+  "uvicorn>=0.30.0",
+]
 
 [project.scripts]
 invoice-ai = "invoice_ai.cli:main"

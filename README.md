@@ -11,11 +11,13 @@
 - استنتاج `due_date` تلقائياً من `Net XX` إذا لم يكن تاريخ الاستحقاق موجودًا.
 - حساب `total` تلقائياً من `subtotal + tax` إذا كان الإجمالي غير مذكور.
 - واجهة CLI بسيطة.
+- API جاهز باستخدام FastAPI.
 - اختبارات وحدة تغطي سيناريوهات متعددة.
 
 ## هيكل المشروع
 - `src/invoice_ai/parser.py`: منطق التحليل والاستخراج.
 - `src/invoice_ai/cli.py`: واجهة سطر الأوامر.
+- `src/invoice_ai/api.py`: API عبر FastAPI.
 - `tests/test_parser.py`: اختبارات الوحدة.
 
 ## التشغيل
@@ -29,22 +31,26 @@ pip install -e .
 أنشئ ملف نصي لفاتورة (مثلاً `sample_invoice.txt`) ثم:
 
 ```bash
-invoice-ai sample_invoice.txt
+invoice-ai parse sample_invoice.txt
 ```
 
-النتيجة ستكون JSON مثل:
-```json
-{
-  "invoice_number": "INV-2026-008",
-  "invoice_date": "2026-04-10",
-  "due_date": "2026-05-10",
-  "vendor_name": "ACME Corp",
-  "customer_name": "Globex LLC",
-  "subtotal": 1000.0,
-  "tax": 100.0,
-  "total": 1100.0,
-  "currency": "USD"
-}
+> ما زال هذا الأمر يعمل أيضاً للتوافق: `invoice-ai sample_invoice.txt`
+
+### تشغيل API
+```bash
+invoice-ai serve --host 0.0.0.0 --port 8000
+```
+
+#### فحص الصحة
+```bash
+curl http://127.0.0.1:8000/health
+```
+
+#### تحليل فاتورة عبر API
+```bash
+curl -X POST http://127.0.0.1:8000/parse \
+  -H "Content-Type: application/json" \
+  -d '{"text":"Invoice # INV-1\nDate: 10/04/2026\nSubtotal: $100\nTax: $10\nTotal: $110"}'
 ```
 
 ## الاختبارات
@@ -56,5 +62,5 @@ PYTHONPATH=src python -m unittest discover -s tests
 لبناء نسخة أقوى:
 1. إضافة OCR (مثل Tesseract أو Azure Document Intelligence) للفواتير المصورة/PDF.
 2. إضافة LLM Extraction schema-based (مثلاً عبر OpenAI JSON schema).
-3. إضافة API (FastAPI) + قاعدة بيانات (PostgreSQL).
+3. إضافة PostgreSQL + تتبع حالة المعالجة.
 4. إضافة لوحة تحكم للمراجعة البشرية (Human-in-the-loop).
