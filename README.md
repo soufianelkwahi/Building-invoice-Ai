@@ -11,7 +11,7 @@
 - استنتاج `due_date` تلقائياً من `Net XX` إذا لم يكن تاريخ الاستحقاق موجودًا.
 - حساب `total` تلقائياً من `subtotal + tax` إذا كان الإجمالي غير مذكور.
 - API فيه حماية بمفتاح (`x-api-key`).
-- حفظ نتائج التحليل في قاعدة بيانات (SQLite افتراضياً أو PostgreSQL عبر متغير بيئة).
+- حفظ نتائج التحليل في قاعدة بيانات (**PostgreSQL افتراضياً**).
 - endpoints لاستقبال نص أو ملف (`PDF / Image / Text`) مع تتبع job.
 
 ## هيكل المشروع
@@ -32,13 +32,26 @@ pip install -e .
 ```
 
 ## الإعدادات (Environment)
+### خيار 1: عبر `.env`
+انسخ الملف الجاهز ثم عدّل القيم:
 ```bash
-export INVOICE_AI_API_KEY="super-secret-key"
-export INVOICE_AI_DATABASE_URL="sqlite:///./invoice_ai.db"
+cp .env.example .env
 ```
 
-> إذا أردت PostgreSQL:
-> `export INVOICE_AI_DATABASE_URL="postgresql+psycopg://user:pass@localhost:5432/invoice_ai"`
+محتوى `.env.example`:
+```env
+INVOICE_AI_API_KEY=change-me
+INVOICE_AI_DATABASE_URL=postgresql+psycopg://postgres:postgres@localhost:5432/invoice_ai
+```
+
+### خيار 2: عبر export
+```bash
+export INVOICE_AI_API_KEY="super-secret-key"
+export INVOICE_AI_DATABASE_URL="postgresql+psycopg://postgres:postgres@localhost:5432/invoice_ai"
+```
+
+> إذا أردت استخدام SQLite محليًا فقط للتجربة:
+> `export INVOICE_AI_DATABASE_URL="sqlite:///./invoice_ai.db"`
 
 ### استخدام CLI
 ```bash
