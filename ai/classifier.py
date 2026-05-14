@@ -6,10 +6,13 @@ from app.core.config import settings
 class InvoiceClassifier:
     def __init__(self):
         self.client = None
-        if settings.openai_api_key:
+        if settings.openrouter_api_key:
             try:
                 from openai import OpenAI
-                self.client = OpenAI(api_key=settings.openai_api_key)
+                self.client = OpenAI(
+                    api_key=settings.openrouter_api_key,
+                    base_url=settings.openrouter_base_url,
+                )
             except ImportError:
                 pass
 
@@ -23,9 +26,9 @@ class InvoiceClassifier:
         from ai.prompts import INVOICE_CLASSIFICATION_PROMPT
 
         response = self.client.chat.completions.create(
-            model="gpt-4o-mini",
+            model=settings.openrouter_model,
             messages=[
-                {"role": "system", "content": "Classify the invoice category."},
+                {"role": "system", "content": "You are a classifier. Return ONLY valid JSON."},
                 {
                     "role": "user",
                     "content": INVOICE_CLASSIFICATION_PROMPT.format(
@@ -33,10 +36,15 @@ class InvoiceClassifier:
                     ),
                 },
             ],
-            response_format={"type": "json_object"},
             temperature=0,
+            extra_headers={
+                "HTTP-Referer": "https://github.com/invoice-ai",
+                "X-Title": "Invoice AI",
+            },
         )
-        return json.loads(response.choices[0].message.content)
+        content = response.choices[0].message.content.strip()
+        content = content.removeprefix("```json").removeprefix("```").removesuffix("```").strip()
+        return json.loads(content)
 
     def _classify_rule_based(self, vendor: str, total: float, text: str) -> dict:
         text_lower = (vendor + " " + text).lower()
