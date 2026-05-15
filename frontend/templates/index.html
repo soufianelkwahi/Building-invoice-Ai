@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice AI</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            padding: 2rem;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 { font-size: 1.8rem; margin-bottom: 0.5rem; color: #1a1a2e; }
+        .subtitle { color: #666; margin-bottom: 2rem; }
+        .card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 1.5rem;
+        }
+        .card h2 { font-size: 1.2rem; margin-bottom: 1rem; color: #1a1a2e; }
+        .upload-form { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+        .upload-form input[type="file"] { flex: 1; }
+        .btn {
+            background: #4361ee;
+            color: #fff;
+            border: none;
+            padding: 0.6rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        .btn:hover { background: #3a56d4; }
+        .btn-delete {
+            background: #e63946;
+            padding: 0.4rem 1rem;
+            font-size: 0.8rem;
+        }
+        .btn-delete:hover { background: #c1121f; }
+        .flash { padding: 0.8rem 1rem; border-radius: 8px; margin-bottom: 1rem; }
+        .flash.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .flash.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        th, td { text-align: left; padding: 0.75rem 0.5rem; border-bottom: 1px solid #eee; }
+        th { font-weight: 600; color: #555; }
+        .badge {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .badge.pending { background: #fff3cd; color: #856404; }
+        .badge.processed { background: #d4edda; color: #155724; }
+        .badge.other { background: #e2e3e5; color: #383d41; }
+        .empty { color: #999; text-align: center; padding: 2rem; }
+        .confidence { font-weight: 500; }
+        .confidence.high { color: #28a745; }
+        .confidence.medium { color: #ffc107; }
+        .confidence.low { color: #dc3545; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Invoice AI</h1>
+        <p class="subtitle">Upload and process invoices automatically</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            <div class="flash {{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <div class="card">
+            <h2>Upload Invoice</h2>
+            <form class="upload-form" action="/upload" method="post" enctype="multipart/form-data">
+                <input type="file" name="file" accept=".pdf,.png,.jpg,.jpeg,.tiff" required>
+                <button type="submit" class="btn">Upload & Process</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2>Invoices</h2>
+            {% if invoices %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Vendor</th>
+                        <th>Invoice #</th>
+                        <th>Total</th>
+                        <th>Category</th>
+                        <th>Confidence</th>
+                        <th>Date</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for inv in invoices %}
+                    <tr>
+                        <td>{{ inv.id }}</td>
+                        <td>{{ inv.vendor_name or '—' }}</td>
+                        <td>{{ inv.invoice_number or '—' }}</td>
+                        <td>{{ inv.currency }} {{ "%.2f"|format(inv.total_amount) }}</td>
+                        <td><span class="badge {{ inv.category }}">{{ inv.category }}</span></td>
+                        <td>
+                            {% set pct = (inv.confidence_score * 100)|round %}
+                            <span class="confidence {% if pct >= 80 %}high{% elif pct >= 50 %}medium{% else %}low{% endif %}">
+                                {{ pct }}%
+                            </span>
+                        </td>
+                        <td>{{ inv.invoice_date or '—' }}</td>
+                        <td>
+                            <form action="/invoices/{{ inv.id }}" method="post" onsubmit="return confirm('Delete this invoice?')">
+                                <button type="submit" class="btn btn-delete">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="empty">No invoices yet. Upload one to get started.</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

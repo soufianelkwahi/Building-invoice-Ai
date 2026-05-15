@@ -1,0 +1,25 @@
+INVOICE #INV-2024-001
+
+From: TechCorp Solutions
+123 Business Ave, Suite 400
+New York, NY 10001
+
+Bill To: Acme Enterprises
+456 Industry Road
+Brooklyn, NY 11201
+
+Date: 2024-03-15
+Due Date: 2024-04-14
+
+Items:
+1. Web Development Services   40 hours   $150/hr   $6,000.00
+2. UI/UX Design               20 hours   $120/hr   $2,400.00
+3. Cloud Hosting (3 months)    1 unit    $300/mo     $900.00
+4. Database Setup              1 unit    $500.00     $500.00
+
+Subtotal:                               $9,800.00
+Tax (8.5%):                               $833.00
+Total:                                  $10,633.00
+
+Payment Terms: Net 30
+Bank: Chase Business Account #: ****4521
